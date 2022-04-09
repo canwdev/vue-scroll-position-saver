@@ -2,7 +2,7 @@
   <div class="about">
     <h1>This is an about page</h1>
 
-    <div class="list" ref="listRef">
+    <div class="list-wrap">
       <div v-for="i in 100" :key="i" class="list-item">{{ i }}</div>
     </div>
   </div>
@@ -13,11 +13,9 @@ import {ScrollPositionSaver} from '@/utils/scroll-position-saver'
 export default {
   mounted() {
     this.sps = new ScrollPositionSaver({
-      // targetEl: this.$refs.listRef,
-      name: 'demo',
+      name: 'about',
       // timeout: 1 * 1000,
       debug: true,
-      // refreshOnly: true
     })
   },
   beforeDestroy() {
@@ -27,10 +25,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.list {
-  // width: 500px;
-  // height: 200px;
-  // overflow: auto;
+.list-wrap {
 
   .list-item {
     height: 50px;
