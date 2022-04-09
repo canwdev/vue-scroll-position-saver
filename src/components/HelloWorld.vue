@@ -21,7 +21,7 @@ export default {
     this.sps = new ScrollPositionSaver({
       targetEl: this.$refs.listRef,
       name: 'hello',
-      debug: true,
+      debug: false,
     })
   },
   beforeDestroy() {

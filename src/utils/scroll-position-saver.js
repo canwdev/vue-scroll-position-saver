@@ -23,14 +23,15 @@ const updateStore = (key, obj) => {
 export class ScrollPositionSaver {
   constructor(options = {}) {
     const {
-      targetEl = window,
+      targetEl = window, // 执行滚动监听的dom元素，默认window
       name = 'default', // 保存 localStorage 的标识符名称后缀
       timeout = -1, // 超时自动清除滚动进度（毫秒），传入-1关闭
       debug = false, // 是否开启调试日志
       autoRestore = 0, // 是否开启自动恢复，默认在实例化0毫秒后恢复，传入-1关闭
       refreshOnly = false, // 是否只在刷新之后恢复，切换页面或关闭页面重新载入不恢复
-      debounceInterval = 300, // 防抖间隔时间（毫秒）
+      debounceInterval = 300, // 滚动监听防抖间隔时间（毫秒）
     } = options
+
     this.timeout = timeout
     this.debug = debug
     this.targetEl = targetEl
@@ -60,11 +61,13 @@ export class ScrollPositionSaver {
     targetEl.addEventListener('scroll', this.handleScroll)
 
     if (refreshOnly) {
-      if (!this.checkIsReload()) {
-        this.debugWarn('refresh only forbid!!')
+      const pageAccessedByReload = this.checkIsReload()
+
+      if (!pageAccessedByReload) {
+        this.debugWarn('page is NOT reload')
         return
       }
-      this.debugWarn('refresh only worked!!')
+      this.debugWarn('page is reload')
     }
 
     if (autoRestore > -1) {
@@ -74,13 +77,16 @@ export class ScrollPositionSaver {
     }
   }
 
+  // 检查页面是否刷新
+  // 注意：在Vue路由切换时可能会误判，此时请使用beforeRouteEnter处理。
   checkIsReload() {
-    const st = sessionStorage.getItem(this.LS_KEY_SCROLL_TOP)
-    if (st === location.href) {
-      return true
-    }
-    sessionStorage.setItem(this.LS_KEY_SCROLL_TOP, location.href)
-    return false
+    return (
+      (window.performance.navigation && window.performance.navigation.type === 1) ||
+      window.performance
+        .getEntriesByType('navigation')
+        .map((nav) => nav.type)
+        .includes('reload')
+    )
   }
 
   debugLog(...args) {
